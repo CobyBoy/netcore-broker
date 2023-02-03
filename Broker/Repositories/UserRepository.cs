@@ -42,9 +42,19 @@ namespace BrokerApi.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<User?> FindLoggedInUser(LoggedUserDto loggedUser)
+        public async Task<User?> FindRegisteredUser(LoggedUserDto loggedUser)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == loggedUser.Email);
+        }
+
+        public async Task<User?> FindUserByToken(string token)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.VerificationToken == token);
+            if (user == null) { return null; }
+            user.ConfirmedRegistrationAt = DateTime.Now;
+            user.isUserVerified= true;
+            await _context.SaveChangesAsync();
+            return user;
         }
     }
 }

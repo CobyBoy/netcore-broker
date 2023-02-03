@@ -24,9 +24,14 @@ namespace BrokerApi.Services
             return exists;
         }
 
-        public async Task<User?> FindLoggedInUser(LoggedUserDto loggedUser)
+        public async Task<User?> FindRegisteredUser(LoggedUserDto loggedUser)
         {
-            return await _userRepository.FindLoggedInUser(loggedUser);
+            return await _userRepository.FindRegisteredUser(loggedUser);
+        }
+
+        public async Task<User?> VerifyUserWithToken(string token)
+        {
+            return await _userRepository.FindUserByToken(token);
         }
     }
 }

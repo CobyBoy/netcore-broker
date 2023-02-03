@@ -7,6 +7,7 @@ namespace BrokerApi.Interfaces
     {
         Task CreateUser(UserDto user, byte[] passwordHash, byte[] passwordSalt);
         public bool IsUserAlreadyRegistered(UserDto user);
-        public Task<User?> FindLoggedInUser(LoggedUserDto loggedUser);
+        public Task<User?> FindRegisteredUser(LoggedUserDto loggedUser);
+        public Task<User?> VerifyUserWithToken(string token);
     }
 }
