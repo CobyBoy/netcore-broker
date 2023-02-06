@@ -61,7 +61,10 @@ namespace BrokerApi.Controllers
         public async Task<IActionResult> VerifyUserToken(string token)
         {
             var user = await _userService.VerifyUserWithToken(token);
-            if (user == null) return BadRequest("Invalid token");
+            if (user == null) return NotFound("Invalid token");
+            _userService.ConfirmUserRegistration(user);
+            return Ok(new { message = "User verified" });
+        }
 
             return Ok(new { message= "User verified"});
         }

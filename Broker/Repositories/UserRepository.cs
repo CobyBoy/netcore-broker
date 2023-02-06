@@ -22,7 +22,7 @@ namespace BrokerApi.Repositories
             return exists;
         }
 
-        public async Task CreateUser(UserDto user, byte[] passwordHash, byte[] passwordSalt)
+        public async Task<User> CreateUser(UserDto user, byte[] passwordHash, byte[] passwordSalt)
         {
             var newUser = new User
             {
@@ -40,6 +40,7 @@ namespace BrokerApi.Repositories
             };
             _context.Add(newUser);
             await _context.SaveChangesAsync();
+            return newUser;
         }
 
         public async Task<User?> FindRegisteredUser(LoggedUserDto loggedUser)
@@ -51,10 +52,14 @@ namespace BrokerApi.Repositories
         {
             var user = await _context.Users.FirstOrDefaultAsync(user => user.VerificationToken == token);
             if (user == null) { return null; }
+            return user;
+        }
+
+        public async Task ConfirmUserRegistration(User user)
+        {
             user.ConfirmedRegistrationAt = DateTime.Now;
             user.isUserVerified= true;
             await _context.SaveChangesAsync();
-            return user;
         }
     }
 }
