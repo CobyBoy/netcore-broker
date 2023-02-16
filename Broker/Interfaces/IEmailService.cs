@@ -4,6 +4,6 @@ namespace BrokerApi.Interfaces
 {
     public interface IEmailService
     {
-        public void SendEmail([Optional]string emailAdress, [Optional] string verificationToken);
+        public void SendEmail([Optional] string emailAdress, string verificationToken);
     }
 }

@@ -2,6 +2,8 @@
 using BrokerApi.DTOs;
 using BrokerApi.Interfaces;
 using BrokerApi.Models;
+using Microsoft.AspNetCore.Identity;
+using AutoMapper;
 
 namespace BrokerApi.Services
 {
@@ -13,34 +15,14 @@ namespace BrokerApi.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User> CreateUser(UserDto user, byte[] passwordHash, byte[] passwordSalt)
+        public async Task<ApiResponse<string>> VerifyUserByToken(string verificationToken)
         {
-            return await _userRepository.CreateUser(user, passwordHash, passwordSalt);
+            return await _userRepository.VerifyUserByToken(verificationToken);
         }
 
-        public bool IsUserAlreadyRegistered(UserDto user)
+        public async Task<bool> HasUserConfirmedEmail(LoggedUserDto userToBeLoggedIn)
         {
-            bool exists = _userRepository.IsUserAlreadyRegistered(user);
-            return exists;
-        }
-
-        public async Task<User?> FindRegisteredUser(LoggedUserDto loggedUser)
-        {
-            return await _userRepository.FindRegisteredUser(loggedUser);
-        }
-
-        public async Task<User?> VerifyUserWithToken(string token)
-        {
-            return await _userRepository.FindUserByToken(token);
-        }
-
-        public void ConfirmUserRegistration(User user)
-        {
-            if (DateTime.Compare(DateTime.Now, user.RegisteredAt.AddHours(2)) >= 0)
-            {
-                _userRepository.ConfirmUserRegistration(user);
-            }
-           
+            return await _userRepository.HasUserConfirmedEmail(userToBeLoggedIn);
         }
     }
 }

@@ -6,6 +6,10 @@ namespace BrokerApi.Interfaces
 {
     public interface IAuthService
     {
-        public Task<ResultResponse<string>> RegisterUser(UserDto user);
+        public Task<ApiResponse<string>> RegisterUser(RegisterUserDto userToBeRegistered);
+        public Task<bool> ValidateUser(LoggedUserDto userToBeLoggedIn);
+
+        public Task<ApiResponse<AuthenticationResponse>?> LogInUser(LoggedUserDto userToBeLoggedIn);
+        public Task<AuthenticationResponse> CreateJwtToken(LoggedUserDto userToBeLoggedIn);
     }
 }

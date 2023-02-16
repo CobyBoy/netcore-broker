@@ -3,63 +3,51 @@ using BrokerApi.Connection;
 using BrokerApi.DTOs;
 using BrokerApi.Interfaces;
 using BrokerApi.Models;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 
 namespace BrokerApi.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly UserDataContext _context;
-        private readonly IHashingService _hashingService;
-        public UserRepository(UserDataContext context, IHashingService hashingService)
+        private readonly UserManager<User> _userManager;
+        public UserRepository(UserDataContext context, UserManager<User> userManager)
         {
             _context = context;
-            _hashingService = hashingService;
+            _userManager = userManager;
         }
 
-        public bool IsUserAlreadyRegistered(UserDto user)
+        public async Task<bool> HasUserConfirmedEmail(LoggedUserDto userToBeLoggedIn)
         {
-            var exists = _context.Users.Any(u => u.Username == user.Username || u.EmailAddress == user.Email);
-            return exists;
+            return (await _userManager.FindByEmailAsync(userToBeLoggedIn.Email)).EmailConfirmed;
         }
 
-        public async Task<User> CreateUser(UserDto user, byte[] passwordHash, byte[] passwordSalt)
+        public async Task<ApiResponse<string>> VerifyUserByToken(string verificationToken)
         {
-            var newUser = new User
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.VerificationToken == verificationToken);
+            if (user == null) { return new ApiResponse<string> { Message = "Invalid token" }; }
+           
+            return await ConfirmUserRegistration(user);
+        }
+
+        private async Task<ApiResponse<string>> ConfirmUserRegistration(User user)
+        {
+            if(DateTime.Compare(DateTime.Now, user.RegisteredAt.AddHours(2)) >= 0)
             {
-                Username = user.Username,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                VerificationToken = _hashingService.CreateRandomVerificationToken(),
-                EmailAddress = user.Email,
-                AreaCode = user.AreaCode,
-                PhoneNumber = user.PhoneNumber,
-                RegisteredAt = DateTime.Now,
-                IsActive = true,
-                isUserVerified = false,
-
-            };
-            _context.Add(newUser);
-            await _context.SaveChangesAsync();
-            return newUser;
-        }
-
-        public async Task<User?> FindRegisteredUser(LoggedUserDto loggedUser)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == loggedUser.Email);
-        }
-
-        public async Task<User?> FindUserByToken(string token)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.VerificationToken == token);
-            if (user == null) { return null; }
-            return user;
-        }
-
-        public async Task ConfirmUserRegistration(User user)
-        {
-            user.ConfirmedRegistrationAt = DateTime.Now;
-            user.isUserVerified= true;
-            await _context.SaveChangesAsync();
+                return new ApiResponse<string> { Message = "Token expired" };
+            }
+            else if (user.EmailConfirmed)
+            {
+                return new ApiResponse<string> { Message = "User already verified" };
+            }
+            else
+            {
+                user.ConfirmedRegistrationAt = DateTime.Now;
+                user.EmailConfirmed = true;
+                await _context.SaveChangesAsync();
+                return new ApiResponse<string> { Message = "User verified" };
+            }
         }
     }
 }

@@ -16,15 +16,16 @@ namespace BrokerApi.Services
         {
             _configuration = configuration;
         }
-        public void SendEmail([Optional] string emailAdress, [Optional] string verificationToken)
+        public void SendEmail([Optional] string emailAdress, string verificationToken)
         {
             //
             var mesage = new MimeMessage();
+            string link = "https://localhost:7149/api/Auth/confirm-email?verificationToken="+verificationToken;
             mesage.From.Add(MailboxAddress.Parse("aboutacoby@gmail.com"));
             mesage.To.Add(MailboxAddress.Parse("aboutacoby@gmail.com"));
             mesage.Subject = "Confirma con el botón, a ver si funciona";
             var bodyBuilder = new BodyBuilder();
-            bodyBuilder.HtmlBody = @"
+            bodyBuilder.HtmlBody = string.Format(@"
 
            
  <div class=""adM"">
@@ -77,7 +78,7 @@ namespace BrokerApi.Services
                     <tbody>
                       <tr>
                         <td style=""border-radius:4px"" bgcolor=""#386FF9"" align=""center"">
-                          <a href='https://www.youtube.com/watch?v=lC5lsemxaJo' style=""font-size:20px;font-family:'Montserrat',sans-serif;color:#ffffff;font-weight:bold;text-decoration:none;
+                          <a href=""{0}"" style=""font-size:20px;font-family:'Montserrat',sans-serif;color:#ffffff;font-weight:bold;text-decoration:none;
 color:#ffffff;text-decoration:none;padding:15px 50px;border-radius:4px;display:inline-block""
 target=""_blank"">Confirm Email</a>
                         </td>
@@ -117,8 +118,9 @@ target=""_blank"">Confirm Email</a>
     </tbody>
   </table>
 
-            ";
+            ", link);
             //email.Body = new TextPart(TextFormat.Html) { Text = "tEST bODY <button><a href=\"https://localhost:7149/api/Auth/verify-email?token=212\"> un boton</a></button>",  };
+            
             mesage.Body = bodyBuilder.ToMessageBody();
             using var smtp = new SmtpClient();
             smtp.Connect(_configuration.GetSection("EmailSettings")["Host"], 587, SecureSocketOptions.StartTls);
