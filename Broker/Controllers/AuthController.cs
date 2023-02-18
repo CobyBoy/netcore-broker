@@ -15,7 +15,7 @@ namespace BrokerApi.Controllers
         private readonly IAuthService _authService;
 
 
-        public AuthController(IUserService userService, IHashingService hashingService, IAuthService authService)
+        public AuthController(IUserService userService, IAuthService authService)
         {
             _userService = userService;
             _authService = authService;
