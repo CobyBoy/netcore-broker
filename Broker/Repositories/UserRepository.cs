@@ -26,7 +26,7 @@ namespace BrokerApi.Repositories
         public async Task<ApiResponse<string>> VerifyUserByToken(string verificationToken)
         {
             var user = await _context.Users.FirstOrDefaultAsync(user => user.VerificationToken == verificationToken);
-            if (user == null) { return new ApiResponse<string> { Message = "Invalid token" }; }
+            if (user == null) { return new ApiResponse<string> { Message = "Invalid token", Success = false }; }
            
             return await ConfirmUserRegistration(user);
         }
@@ -35,11 +35,11 @@ namespace BrokerApi.Repositories
         {
             if(DateTime.Compare(DateTime.Now, user.RegisteredAt.AddHours(2)) >= 0)
             {
-                return new ApiResponse<string> { Message = "Token expired" };
+                return new ApiResponse<string> { Message = "Token expired", Success = false };
             }
             else if (user.EmailConfirmed)
             {
-                return new ApiResponse<string> { Message = "User already verified" };
+                return new ApiResponse<string> { Message = "User already verified", Success = false };
             }
             else
             {
