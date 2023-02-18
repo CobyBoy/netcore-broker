@@ -41,7 +41,7 @@ namespace BrokerApi.Services
             {
                 _emailService.SendEmail(newUser.Email, newUser.VerificationToken);
                 response.Data = newUser.Id.ToString();
-                response.Message = "Registration successful. Please check your email to verify your user";
+                response.Message = "Registration successful. Please verify your email before login";
             }
             else
             {
@@ -72,6 +72,23 @@ namespace BrokerApi.Services
                 response.Success = false;
             }
             return response;
+        }
+
+        public async Task<ApiResponse<string>> GetNewVerificationToken(string email)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            User? user = await _userManager.FindByEmailAsync(email);
+            if(user != null) {
+                _emailService.ReSendEmail(email, _hashingService.CreateRandomVerificationToken());
+                response.Message = "A new confirmation email has been sent to you.";
+            }
+            else
+            {
+                response.Message = "Your email is not registered";
+                response.Success = false;
+            } 
+            return response;
+            
         }
 
         public async void LogOut()
