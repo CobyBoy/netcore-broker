@@ -10,6 +10,8 @@ namespace BrokerApi.Interfaces
         public Task<bool> ValidateUser(LoggedUserDto userToBeLoggedIn);
 
         public Task<ApiResponse<AuthenticationResponse>?> LogInUser(LoggedUserDto userToBeLoggedIn);
+        public void LogOut();
         public Task<AuthenticationResponse> CreateJwtToken(LoggedUserDto userToBeLoggedIn);
+        public Task<ApiResponse<string>> GetNewVerificationToken(string email);
     }
 }
