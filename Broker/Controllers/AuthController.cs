@@ -65,6 +65,14 @@ namespace BrokerApi.Controllers
             return Ok(await _userService.VerifyUserByToken(verificationToken));
         }
 
+        [HttpPost("get-new-verification-token")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetNewConfirmationToken([FromBody] string email)
+        {
+           return Ok(await _authService.GetNewVerificationToken(email));
+        }
+
         [HttpPost("test")]
         public async Task<IActionResult> Testmail([FromBody] GoogleDto credential)
         {
