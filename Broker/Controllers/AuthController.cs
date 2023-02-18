@@ -43,9 +43,16 @@ namespace BrokerApi.Controllers
         {
             if (userToBeLoggedIn == null) return BadRequest(new ApiResponse<string> { Message = "Please fill all fields" });
             if (!await _authService.ValidateUser(userToBeLoggedIn)) { return Unauthorized(new ApiResponse<string> { Message = "Wrong user or password" }); }
-            if (await _userService.HasUserConfirmedEmail(userToBeLoggedIn))
+            if (await _userService.HasUserConfirmedEmail(userToBeLoggedIn)) return Unauthorized(new ApiResponse<string> { Message = "You need to verify your email first" });
+            return Ok(await _authService.LogInUser(userToBeLoggedIn));
+        }
+
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult Logout()
             {
-                return Unauthorized(new ApiResponse<string> { Message = "You need to verify your email first" });
+            _authService.LogOut();
+            return NoContent();
             }
             return Ok(await _authService.LogInUser(userToBeLoggedIn));
         }

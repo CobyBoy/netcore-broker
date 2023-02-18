@@ -3,10 +3,7 @@ using BrokerApi.DTOs;
 using BrokerApi.Interfaces;
 using BrokerApi.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Win32;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -72,10 +69,15 @@ namespace BrokerApi.Services
             else
             {
                 response.Message = "Log in failed";
+                response.Success = false;
             }
             return response;
         }
 
+        public async void LogOut()
+        {
+            await _signInManager.SignOutAsync();
+        }
         public async Task<AuthenticationResponse> CreateJwtToken(LoggedUserDto userToBeLoggedIn)
         {
             List<Claim> claims = await GetClaims(userToBeLoggedIn);
