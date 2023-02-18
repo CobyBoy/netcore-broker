@@ -54,8 +54,6 @@ namespace BrokerApi.Controllers
             _authService.LogOut();
             return NoContent();
             }
-            return Ok(await _authService.LogInUser(userToBeLoggedIn));
-        }
 
         [HttpPost("confirm-email")]
         [ProducesResponseType(StatusCodes.Status200OK)]
